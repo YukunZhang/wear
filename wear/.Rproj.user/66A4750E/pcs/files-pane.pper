@@ -1,0 +1,9 @@
+{
+    "path" : "~/wear",
+    "sortOrder" : [
+        {
+            "ascending" : true,
+            "columnIndex" : 2
+        }
+    ]
+}

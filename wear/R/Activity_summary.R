@@ -7,10 +7,32 @@
 #' @param ll the id of getup time record
 #' @return ... ...
 #' @export
+dat=read.csv(file="C:\\Yukun\\Sarah'sProject_Haocheng\\event files\\baseline\\sample data.csv",header=TRUE)
 
-Activity_summary=function(final.dat,record.getup.time, record.sleep.time,ll){
-  temp.mat<-subset(final.dat,final.dat[,1]>record.getup.time[ll] & final.dat[,1]<record.sleep.time[ll] )
-  if(nrow(temp.mat)==0)next
+Activity_summary=function(final.dat){
+  dat=final.dat
+  if(is.numeric(dat$Time)==F) ####if  is.numeric(dat$Time)==F, we need further modification of time in next step
+  {
+    ee<-as.character(dat$Time)
+    max.length<-max(nchar(ee))
+    ee[nchar(ee)!=max.length]<-"#1899-12-30 00:00:00#"
+    #### use character type, may not be good
+    ee.new<- (as.numeric( as.POSIXlt( substr(ee, 2, max.length-1 )  )    )+2209190400)/24/60/60
+    #### use interval type, this is the best
+    start.ee<-  min(which(dat[,2]>0))-1
+    ee.new.int.type <-c( ee.new[1:((start.ee)-1)],ee.new[start.ee]+(dat$DataCount[start.ee:nrow(dat)]/10/24/60/60)  )
+    #### if interval type has large difference with character type, use character type
+    int.dif.char<-which(abs(ee.new-ee.new.int.type)>0.1 )
+    ee.new.int.type[int.dif.char]<-ee.new[int.dif.char]
+    ####
+    dat<-cbind(ee.new.int.type,dat[,2:6])  
+  }
+  
+  final.dat<-dat[,c(1,3,4,6)]
+  colnames(final.dat)<-c("date.time","Interval","ActivityCode", "METs")
+  
+temp.mat=final.dat
+if(nrow(temp.mat)==0)next
   
   temp.mat.for.activity<- temp.mat
   temp.mat.for.activity$Activity[temp.mat.for.activity$Activity==1]<-2
@@ -60,8 +82,8 @@ Activity_summary=function(final.dat,record.getup.time, record.sleep.time,ll){
   
   stepping.to.standing.ratio<- step.hour/stand.hour
   
-  table4<- c(88888888,total.number.of.activity.bouts,mean.activity.bout.length,prop.of.activity.time.greater.5min,prop.of.activity.time.greater.10min,prop.of.activity.time.greater.30min,total.activity.time.greater.5min,total.activity.time.greater.10min,total.activity.time.greater.30min,percentile.activity.time.5,percentile.activity.time.25,percentile.activity.time.50,percentile.activity.time.75,percentile.activity.time.95,alpha.activity,gini.index.activity,stepping.to.standing.ratio)
-  table4.label<- c("88888888","total.number.of.activity.bouts","mean.activity.bout.length","prop.of.activity.time.greater.5min","prop.of.activity.time.greater.10min","prop.of.activity.time.greater.30min","total.activity.time.greater.5min","total.activity.time.greater.10min","total.activity.time.greater.30min","percentile.activity.time.5","percentile.activity.time.25","percentile.activity.time.50","percentile.activity.time.75","percentile.activity.time.95","alpha.activity","gini.index.activity","stepping.to.standing.ratio")
-  out=list( temp.activity=temp.activity,total.number.of.activity.bouts=total.number.of.activity.bouts,mean.activity.bout.length=mean.activity.bout.length,prop.of.activity.time.greater.5min=prop.of.activity.time.greater.5min,prop.of.activity.time.greater.10min=prop.of.activity.time.greater.10min,prop.of.activity.time.greater.30min=prop.of.activity.time.greater.30min,total.activity.time.greater.5min=total.activity.time.greater.5min,total.activity.time.greater.10min=total.activity.time.greater.10min,total.activity.time.greater.30min=total.activity.time.greater.30min,percentile.activity.time.5=percentile.activity.time.5,percentile.activity.time.25=percentile.activity.time.25,percentile.activity.time.50=percentile.activity.time.50,percentile.activity.time.75=percentile.activity.time.75,percentile.activity.time.95=percentile.activity.time.95,alpha.activity=alpha.activity,gini.index.activity=gini.index.activity,stepping.to.standing.ratio=stepping.to.standing.ratio,table4=table4,table4.label=table4.label)
+  table4<- cbind(total.number.of.activity.bouts,mean.activity.bout.length,prop.of.activity.time.greater.5min,prop.of.activity.time.greater.10min,prop.of.activity.time.greater.30min,total.activity.time.greater.5min,total.activity.time.greater.10min,total.activity.time.greater.30min,percentile.activity.time.5,percentile.activity.time.25,percentile.activity.time.50,percentile.activity.time.75,percentile.activity.time.95,alpha.activity,gini.index.activity,stepping.to.standing.ratio)
+  colnames(table4)<- c("total.number.of.activity.bouts","mean.activity.bout.length","prop.of.activity.time.greater.5min","prop.of.activity.time.greater.10min","prop.of.activity.time.greater.30min","total.activity.time.greater.5min","total.activity.time.greater.10min","total.activity.time.greater.30min","percentile.activity.time.5","percentile.activity.time.25","percentile.activity.time.50","percentile.activity.time.75","percentile.activity.time.95","alpha.activity","gini.index.activity","stepping.to.standing.ratio")
+  out=list( temp.activity=temp.activity,total.number.of.activity.bouts=total.number.of.activity.bouts,mean.activity.bout.length=mean.activity.bout.length,prop.of.activity.time.greater.5min=prop.of.activity.time.greater.5min,prop.of.activity.time.greater.10min=prop.of.activity.time.greater.10min,prop.of.activity.time.greater.30min=prop.of.activity.time.greater.30min,total.activity.time.greater.5min=total.activity.time.greater.5min,total.activity.time.greater.10min=total.activity.time.greater.10min,total.activity.time.greater.30min=total.activity.time.greater.30min,percentile.activity.time.5=percentile.activity.time.5,percentile.activity.time.25=percentile.activity.time.25,percentile.activity.time.50=percentile.activity.time.50,percentile.activity.time.75=percentile.activity.time.75,percentile.activity.time.95=percentile.activity.time.95,alpha.activity=alpha.activity,gini.index.activity=gini.index.activity,stepping.to.standing.ratio=stepping.to.standing.ratio,table4=table4)
   return(out)
 }

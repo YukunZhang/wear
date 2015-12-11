@@ -9,8 +9,10 @@
 #' @return hours.awake    Total awake hours
 #' @return sed.hour  Total sedantary hours
 #' @return ... ...
+#' @examples  data(sample);PA_summary(sample) 
 #' @export
 PA_summary=function (final.dat) {
+  library(reldist)
   temp.mat=final.dat
   
   ###################################################

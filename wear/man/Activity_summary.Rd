@@ -4,14 +4,14 @@
 \alias{Activity_summary}
 \title{Activity Summary--Standing and Stepping}
 \usage{
-Activity_summary(final.dat, record.getup.time, record.sleep.time, ll)
+Activity_summary(final.dat)
 }
 \arguments{
 \item{final.dat}{cleaned final data that is between record getup time and sleep time}
 
-\item{record.getup.time}{Log file of getup time}
-
 \item{record.sleep.time}{Log file of sleep time}
+
+\item{record.getup.time}{Log file of getup time}
 
 \item{ll}{the id of getup time record}
 }
@@ -20,5 +20,8 @@ Activity_summary(final.dat, record.getup.time, record.sleep.time, ll)
 }
 \description{
 Summarize Standing and Stepping activity measures
+}
+\examples{
+ data(sample);Activity_summary(sample) 
 }
 

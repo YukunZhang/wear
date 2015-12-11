@@ -1,0 +1,18 @@
+{
+    "contents" : "sample=read.csv(file=\"C:\\\\Yukun\\\\Sarah'sProject_Haocheng\\\\event files\\\\baseline\\\\sample data.csv\",header=TRUE)\n",
+    "created" : 1449790478868.000,
+    "dirty" : true,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "750391763",
+    "id" : "112DE5A8",
+    "lastKnownWriteTime" : 229774304,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "type" : "r_source"
+}

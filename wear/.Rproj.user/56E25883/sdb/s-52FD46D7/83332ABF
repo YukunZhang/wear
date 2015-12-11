@@ -1,0 +1,17 @@
+{
+    "contents" : "Package: wear\nType: Package\nTitle: Process and analyze physical activities data\nVersion: 1.0\nDate: 2015-11-23\nAuthor: Yukun\nMaintainer: Yukun Zhang <yukzhang@ucalgary.ca>\nDescription: Process physical activites data, analyze and summarize data and do\n    comparison\nImports:\n    reldist\nLicense: GPL version 2 or newer\nRoxygenNote: 5.0.1\n",
+    "created" : 1449811114709.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "4137630889",
+    "id" : "83332ABF",
+    "lastKnownWriteTime" : 1449811157,
+    "path" : "~/wear/DESCRIPTION",
+    "project_path" : "DESCRIPTION",
+    "properties" : {
+    },
+    "relative_order" : 7,
+    "source_on_save" : false,
+    "type" : "dcf"
+}

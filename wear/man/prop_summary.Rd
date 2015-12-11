@@ -4,14 +4,14 @@
 \alias{prop_summary}
 \title{Activity Summary--Proportions and Percentiles}
 \usage{
-prop_summary(final.dat, record.getup.time, record.sleep.time, ll)
+prop_summary(final.dat)
 }
 \arguments{
 \item{final.dat}{cleaned final data that is between record getup time and sleep time}
 
-\item{record.getup.time}{Log file of getup time}
-
 \item{record.sleep.time}{Log file of sleep time}
+
+\item{record.getup.time}{Log file of getup time}
 
 \item{ll}{the id of getup time record}
 }
@@ -20,5 +20,8 @@ prop_summary(final.dat, record.getup.time, record.sleep.time, ll)
 }
 \description{
 Summarize activity measures using proportions and percentiles
+}
+\examples{
+ data(sample);prop_summary(sample) 
 }
 

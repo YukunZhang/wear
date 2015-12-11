@@ -6,11 +6,12 @@
 #' @param record.getup.time Log file of getup time
 #' @param ll the id of getup time record
 #' @return ... ...
+#' @examples  data(sample);prop_summary(sample) 
 #' @export
 
 prop_summary=function(final.dat)
   
-{
+{library(reldist)
   temp.mat=final.dat
   hour.char<-as.numeric(format(as.POSIXlt(temp.mat$date.time*24*60*60, origin = ISOdatetime(1899,12,30,0,0,0)),"%H"))
   temp.sed<-subset(temp.mat,temp.mat$ActivityCode==0)$Interval

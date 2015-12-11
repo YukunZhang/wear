@@ -1,11 +1,13 @@
 Package: wear
 Type: Package
-Title: Summarize daily physical activity from accelerometer data
+Title: Process and analyze physical activities data
 Version: 1.0
-Date: 2015-11-27
-Author: Yukun Zhang
-Maintainer: Yukun Zhang<yukzhang@ucalgary.ca>
-Description: Summarize daily physical activity (Mets, Proportion, Total, etc.) from accelerometer data
-License: GPL-2
-LazyData: TRUE
+Date: 2015-11-23
+Author: Yukun
+Maintainer: Yukun Zhang <yukzhang@ucalgary.ca>
+Description: Process physical activites data, analyze and summarize data and do
+    comparison
+Imports:
+    reldist
+License: GPL version 2 or newer
 RoxygenNote: 5.0.1

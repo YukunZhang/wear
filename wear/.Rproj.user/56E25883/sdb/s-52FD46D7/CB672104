@@ -1,0 +1,18 @@
+{
+    "contents" : "#' Simulated sample accelerometry data\n#'\n#' A dataset containing the prices and other attributes of almost 54,000\n#'  diamonds. The variables are as follows:\n#'\n#' \\itemize{\n#'   \\item Time. Time of this log row\n#'   \\item carat. weight of the diamond (0.2--5.01)\n#'   \\item cut. quality of the cut (Fair, Good, Very Good, Premium, Ideal)\n#' }\n#'\n#' @docType data\n#' @keywords datasets\n#' @name sampledata\n#' @usage data(sample)\n#' @format A data frame with 129 rows and 7 variables\nNULL",
+    "created" : 1449790329523.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1058715527",
+    "id" : "CB672104",
+    "lastKnownWriteTime" : 1449790354,
+    "path" : "~/wear/R/sampledata.r",
+    "project_path" : "R/sampledata.r",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "type" : "r_source"
+}

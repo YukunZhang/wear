@@ -4,8 +4,7 @@
 \alias{PA_summary}
 \title{Physical Activity Summary}
 \usage{
-PA_summary(final.dat, record.sleep.time, record.getup.time, ll, person,
-  group.char, www)
+PA_summary(final.dat)
 }
 \arguments{
 \item{final.dat}{cleaned final data that is between record getup time and sleep time}
@@ -27,5 +26,8 @@ sed.hour  Total sedantary hours
 }
 \description{
 Summarize activity measures
+}
+\examples{
+ data(sample);PA_summary(sample) 
 }
 

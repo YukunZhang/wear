@@ -6,10 +6,12 @@
 #' @param record.getup.time Log file of getup time
 #' @param ll the id of getup time record
 #' @return ... ...
+#' @examples  data(sample);Activity_summary(sample) 
 #' @export
-dat=read.csv(file="C:\\Yukun\\Sarah'sProject_Haocheng\\event files\\baseline\\sample data.csv",header=TRUE)
+#' 
 
 Activity_summary=function(final.dat){
+  library(reldist)
   dat=final.dat
   if(is.numeric(dat$Time)==F) ####if  is.numeric(dat$Time)==F, we need further modification of time in next step
   {

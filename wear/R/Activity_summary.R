@@ -1,91 +1,103 @@
 #' Activity Summary--Standing and Stepping
 #'
 #' Summarize Standing and Stepping activity measures
-#' @param final.dat cleaned final data that is between record getup time and sleep time
-#' @param record.sleep.time Log file of sleep time
-#' @param record.getup.time Log file of getup time
-#' @param ll the id of getup time record
-#' @return ... ...
-#' @examples  data(sample);Activity_summary(sample) 
-#' @export
-#' 
+#' @param final_dat cleaned final data that is between record getup time and sleep time
 
-Activity_summary=function(final.dat){
-  library(reldist)
-  dat=final.dat
-  if(is.numeric(dat$Time)==F) ####if  is.numeric(dat$Time)==F, we need further modification of time in next step
-  {
-    ee<-as.character(dat$Time)
-    max.length<-max(nchar(ee))
-    ee[nchar(ee)!=max.length]<-"#1899-12-30 00:00:00#"
-    #### use character type, may not be good
-    ee.new<- (as.numeric( as.POSIXlt( substr(ee, 2, max.length-1 )  )    )+2209190400)/24/60/60
-    #### use interval type, this is the best
-    start.ee<-  min(which(dat[,2]>0))-1
-    ee.new.int.type <-c( ee.new[1:((start.ee)-1)],ee.new[start.ee]+(dat$DataCount[start.ee:nrow(dat)]/10/24/60/60)  )
-    #### if interval type has large difference with character type, use character type
-    int.dif.char<-which(abs(ee.new-ee.new.int.type)>0.1 )
-    ee.new.int.type[int.dif.char]<-ee.new[int.dif.char]
-    ####
-    dat<-cbind(ee.new.int.type,dat[,2:6])  
-  }
-  
-  final.dat<-dat[,c(1,3,4,6)]
-  colnames(final.dat)<-c("date.time","Interval","ActivityCode", "METs")
-  
-temp.mat=final.dat
-if(nrow(temp.mat)==0)next
-  
-  temp.mat.for.activity<- temp.mat
-  temp.mat.for.activity$Activity[temp.mat.for.activity$Activity==1]<-2
-  end.pos<-cumsum(rle(temp.mat.for.activity$Activity)$lengths)
-  start.pos<-c(0,end.pos[1:(length(end.pos)-1)])+1
+#' @return \code{total_number_of_activity_bouts} Total number of activity bouts
+#' @return \code{mean_activity_bout_length} Average length of activity bout
+#' @return \code{prop_of_activity_time_greater_5min} Proportions of activity greater than 5 minutes
+#' @return \code{prop_of_activity_time_greater_10min} Proportions of activity greater than 10 minutes
+#' @return \code{prop_of_activity_time_greater_30min} Proportions of activity greater than 30 minutes
+#' @return \code{total_activity_time_greater_5min} Total activity time in the bouts greater than 5 minutes
+#' @return \code{total_activity_time_greater_10min} Total activity time in the bouts greater than 10 minutes
+#' @return \code{total_activity_time_greater_30min} Total activity time in the bouts greater than 30 minutes
+#' @return \code{percentile_activity_time_5} 5\% percentile of activity bouth length
+#' @return \code{percentile_activity_time_25} 25\% percentile of activity bout length
+#' @return \code{percentile_activity_time_50} 50\% percentile of activity bout length
+#' @return \code{percentile_activity_time_75} 75\% percentile of activity bout length
+#' @return \code{percentile_activity_time_95} 95\% percentile of activity bout length
+#' @return \code{alpha_activity} alpha of activity time, see details_
+#' @return \code{stepping_to_standing_ratio} Ratio of stepping to standing, the ratio of total stepping hours to standing hours
+#' @return \code{table} A table that combine all outputs
+#' @details  \code{alpha_activity} is defined by \code{1+1/M}, where \code{M} is the average of \code{log(activity bout length /minimum activity bout length)}_
+
+#' @examples  data(sampledata);Activity_summary(sampledata)
+#' @importFrom stats quantile
+#' @export
+#'
+
+Activity_summary=function(final_dat){
+  #library(reldist)
+  dat=final_dat
+
+  final_dat=clean_time(dat)
+  temp_mat_for_activity<- final_dat
+  temp_mat_for_activity$Activity[temp_mat_for_activity$Activity==1]<-2
+  end_pos<-cumsum(rle(temp_mat_for_activity$Activity)$lengths)
+  start_pos<-c(0,end_pos[1:(length(end_pos)-1)])+1
   ############### for each runs, handle the data
-  handle.runs<- sapply(1:length(end.pos),function(x,data.mat=temp.mat.for.activity)
+  handle_runs<- sapply(1:length(end_pos),function(x,data_mat=temp_mat_for_activity)
   {
-    select.data<-data.mat[start.pos[x]:end.pos[x],]
-    combine.data<- c(min(select.data$date.time),sum(select.data$Interval),max(select.data$Activity),sum(select.data$METs) )
-    return(combine.data)
+    select_data<-data_mat[start_pos[x]:end_pos[x],]
+    combine_data<- c(min(select_data$date_time),sum(select_data$Interval),max(select_data$Activity),sum(select_data$METs),min(select_data$new_date) )
+    return(combine_data)
   }, simplify=F
   )
   ############### combine each run
-  combined.temp.mat.for.activity<-data.frame(do.call(rbind,handle.runs))
-  colnames(combined.temp.mat.for.activity)<-c("date.time", "Interval", "ActivityCode","METs")
+  combined_temp_mat_for_activity<-data.frame(do.call(rbind,handle_runs))
+  colnames(combined_temp_mat_for_activity)<-c("date_time", "Interval", "ActivityCode","METs","new_date")
   ###############
+  table1=c()
+  ###################################################
+  for (i in unique(combined_temp_mat_for_activity$new_date)){
+    temp_mat_oneday=final_dat[final_dat$new_date==i,]
+    final_dat_oneday=combined_temp_mat_for_activity[combined_temp_mat_for_activity$new_date==i,]
+    time_char<-as.POSIXlt(i*24*60*60, origin = ISOdatetime(1899,12,30,0,0,0))
+    month<-as.numeric(format(time_char,"%m"))
+    day<-as.numeric(format(time_char,"%d"))
+    year<-as.numeric(format(time_char,"%Y"))
+
+
+
   ###############Calculation
   ###############
   ###
-  temp.activity<-subset(combined.temp.mat.for.activity,combined.temp.mat.for.activity$ActivityCode==2)$Interval
+  temp_activity<-subset(final_dat_oneday,final_dat_oneday$ActivityCode==2)$Interval
   ###
-  
-  length.temp.activity<-length(temp.activity)
-  total.number.of.activity.bouts<- length.temp.activity
-  mean.activity.bout.length<- mean(temp.activity) /60/60
-  
-  prop.of.activity.time.greater.5min<- 100*length(temp.activity[temp.activity>5*60])/length.temp.activity
-  prop.of.activity.time.greater.10min<- 100*length(temp.activity[temp.activity>10*60])/length.temp.activity
-  prop.of.activity.time.greater.30min<- 100*length(temp.activity[temp.activity>30*60])/length.temp.activity
-  
-  total.activity.time.greater.5min<- sum(temp.activity[temp.activity>5*60])/60/60
-  total.activity.time.greater.10min<- sum(temp.activity[temp.activity>10*60])/60/60
-  total.activity.time.greater.30min<- sum(temp.activity[temp.activity>30*60])/60/60
-  
-  quantile.activity.temp<-quantile(temp.activity, probs = c(0.05,0.25,0.5,0.75,0.95))/60/60
-  percentile.activity.time.5<- quantile.activity.temp[1]
-  percentile.activity.time.25<- quantile.activity.temp[2]
-  percentile.activity.time.50<- quantile.activity.temp[3]
-  percentile.activity.time.75<- quantile.activity.temp[4]
-  percentile.activity.time.95<- quantile.activity.temp[5]
-  
-  alpha.activity<- 1+ 1/mean(log(temp.activity/ min(temp.activity)))
-  gini.index.activity<- gini(temp.activity)
-  step.hour<- sum(subset(temp.mat,temp.mat$ActivityCode==2)$Interval) /60/60
-  stand.hour<- sum(subset(temp.mat,temp.mat$ActivityCode==1)$Interval) /60/60
-  
-  stepping.to.standing.ratio<- step.hour/stand.hour
-  
-  table4<- cbind(total.number.of.activity.bouts,mean.activity.bout.length,prop.of.activity.time.greater.5min,prop.of.activity.time.greater.10min,prop.of.activity.time.greater.30min,total.activity.time.greater.5min,total.activity.time.greater.10min,total.activity.time.greater.30min,percentile.activity.time.5,percentile.activity.time.25,percentile.activity.time.50,percentile.activity.time.75,percentile.activity.time.95,alpha.activity,gini.index.activity,stepping.to.standing.ratio)
-  colnames(table4)<- c("total.number.of.activity.bouts","mean.activity.bout.length","prop.of.activity.time.greater.5min","prop.of.activity.time.greater.10min","prop.of.activity.time.greater.30min","total.activity.time.greater.5min","total.activity.time.greater.10min","total.activity.time.greater.30min","percentile.activity.time.5","percentile.activity.time.25","percentile.activity.time.50","percentile.activity.time.75","percentile.activity.time.95","alpha.activity","gini.index.activity","stepping.to.standing.ratio")
-  out=list( temp.activity=temp.activity,total.number.of.activity.bouts=total.number.of.activity.bouts,mean.activity.bout.length=mean.activity.bout.length,prop.of.activity.time.greater.5min=prop.of.activity.time.greater.5min,prop.of.activity.time.greater.10min=prop.of.activity.time.greater.10min,prop.of.activity.time.greater.30min=prop.of.activity.time.greater.30min,total.activity.time.greater.5min=total.activity.time.greater.5min,total.activity.time.greater.10min=total.activity.time.greater.10min,total.activity.time.greater.30min=total.activity.time.greater.30min,percentile.activity.time.5=percentile.activity.time.5,percentile.activity.time.25=percentile.activity.time.25,percentile.activity.time.50=percentile.activity.time.50,percentile.activity.time.75=percentile.activity.time.75,percentile.activity.time.95=percentile.activity.time.95,alpha.activity=alpha.activity,gini.index.activity=gini.index.activity,stepping.to.standing.ratio=stepping.to.standing.ratio,table4=table4)
-  return(out)
+  length_temp_activity<-length(temp_activity)
+  total_number_of_activity_bouts<- length_temp_activity
+  mean_activity_bout_length<- mean(temp_activity) /60/60
+
+  prop_of_activity_time_greater_5min<- 100*length(temp_activity[temp_activity>5*60])/length_temp_activity
+  prop_of_activity_time_greater_10min<- 100*length(temp_activity[temp_activity>10*60])/length_temp_activity
+  prop_of_activity_time_greater_30min<- 100*length(temp_activity[temp_activity>30*60])/length_temp_activity
+
+  total_activity_time_greater_5min<- sum(temp_activity[temp_activity>5*60])/60/60
+  total_activity_time_greater_10min<- sum(temp_activity[temp_activity>10*60])/60/60
+  total_activity_time_greater_30min<- sum(temp_activity[temp_activity>30*60])/60/60
+
+  quantile_activity_temp<-quantile(temp_activity, probs = c(0.05,0.25,0.5,0.75,0.95))/60/60
+  percentile_activity_time_5<- quantile_activity_temp[1]
+  percentile_activity_time_25<- quantile_activity_temp[2]
+  percentile_activity_time_50<- quantile_activity_temp[3]
+  percentile_activity_time_75<- quantile_activity_temp[4]
+  percentile_activity_time_95<- quantile_activity_temp[5]
+
+  alpha_activity<- 1+ 1/mean(log(temp_activity/ min(temp_activity)))
+  #gini_index_activity<- gini(temp_activity)
+  step_hour<- sum(subset(temp_mat_oneday,temp_mat_oneday$ActivityCode==2)$Interval) /60/60
+  stand_hour<- sum(subset(temp_mat_oneday,temp_mat_oneday$ActivityCode==1)$Interval) /60/60
+
+  stepping_to_standing_ratio<- step_hour/stand_hour
+
+  table<- cbind(year,month,day,total_number_of_activity_bouts,mean_activity_bout_length,prop_of_activity_time_greater_5min,prop_of_activity_time_greater_10min,prop_of_activity_time_greater_30min,total_activity_time_greater_5min,total_activity_time_greater_10min,total_activity_time_greater_30min,percentile_activity_time_5,percentile_activity_time_25,percentile_activity_time_50,percentile_activity_time_75,percentile_activity_time_95,alpha_activity,stepping_to_standing_ratio)
+  row.names(table)=NULL
+  table1=rbind(table1,table)
+  #print(table1)
+
+  }
+  colnames(table1)<- c("year","month","day","total_number_of_activity_bouts","mean_activity_bout_length","prop_of_activity_time_greater_5min","prop_of_activity_time_greater_10min","prop_of_activity_time_greater_30min","total_activity_time_greater_5min","total_activity_time_greater_10min","total_activity_time_greater_30min","percentile_activity_time_5","percentile_activity_time_25","percentile_activity_time_50","percentile_activity_time_75","percentile_activity_time_95","alpha_activity","stepping_to_standing_ratio")
+
+  #out=list( total_number_of_activity_bouts=total_number_of_activity_bouts,mean_activity_bout_length=mean_activity_bout_length,prop_of_activity_time_greater_5min=prop_of_activity_time_greater_5min,prop_of_activity_time_greater_10min=prop_of_activity_time_greater_10min,prop_of_activity_time_greater_30min=prop_of_activity_time_greater_30min,total_activity_time_greater_5min=total_activity_time_greater_5min,total_activity_time_greater_10min=total_activity_time_greater_10min,total_activity_time_greater_30min=total_activity_time_greater_30min,percentile_activity_time_5=percentile_activity_time_5,percentile_activity_time_25=percentile_activity_time_25,percentile_activity_time_50=percentile_activity_time_50,percentile_activity_time_75=percentile_activity_time_75,percentile_activity_time_95=percentile_activity_time_95,alpha_activity=alpha_activity,stepping_to_standing_ratio=stepping_to_standing_ratio,table=table)
+  return(table1)
 }

@@ -1,13 +1,14 @@
-Package: wear
+Package: PAactivPAL
 Type: Package
-Title: Process and analyze physical activities data
+Title: Summarize daily physical activity from activPAL accelerometer data
 Version: 1.0
-Date: 2015-11-23
-Author: Yukun
-Maintainer: Yukun Zhang <yukzhang@ucalgary.ca>
-Description: Process physical activites data, analyze and summarize data and do
-    comparison
+Date: 2015-11-27
+Author:  Li, Haocheng (U of C);  Zhang, Yukun (U of C); Keadle, Sarah (NIH/NCI); Sampson, Joshua (NIH/NCI); Matthews, Charles (NIH/NCI); Raymond Carroll (TAMU)
+Maintainer: Zhang, Yukun <yukzhang@ucalgary.ca>
+Description: Summarize  physical activity (Mets, Proportion, Total, etc.) in the given time period from accelerometer data
 Imports:
     reldist
-License: GPL version 2 or newer
+License: GPL-2
+LazyData: TRUE
 RoxygenNote: 5.0.1
+References: Kozey-Keadle, Sarah, et al. "Changes in Sedentary Time and Physical Activity in Response to an Exercise Training and/or Lifestyle Intervention." Journal of physical activity & health (2013).

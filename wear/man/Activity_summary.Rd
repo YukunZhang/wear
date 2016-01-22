@@ -8,20 +8,49 @@ Activity_summary(final.dat)
 }
 \arguments{
 \item{final.dat}{cleaned final data that is between record getup time and sleep time}
-
-\item{record.sleep.time}{Log file of sleep time}
-
-\item{record.getup.time}{Log file of getup time}
-
-\item{ll}{the id of getup time record}
 }
 \value{
-... ...
+total.number.of.activity.bouts Total number of activity bouts
+
+mean.activity.bout.length Average length of activity bout
+
+prop.of.activity.time.greater.5min Proportions of activity greater than 5 minutes
+
+prop.of.activity.time.greater.10min Proportions of activity greater than 10 minutes
+
+prop.of.activity.time.greater.30min Proportions of activity greater than 30 minutes
+
+total.activity.time.greater.5min Total activity time in the bouts greater than 5 minutes
+
+total.activity.time.greater.10min Total activity time in the bouts greater than 10 minutes
+
+total.activity.time.greater.30min Total activity time in the bouts greater than 30 minutes
+
+percentile.activity.time.5 5\% percentile of activity bouth length
+
+percentile.activity.time.25 25\% percentile of activity bouth length
+
+percentile.activity.time.50 50\% percentile of activity bouth length
+
+percentile.activity.time.75 75\% percentile of activity bouth length
+
+percentile.activity.time.95 95\% percentile of activity bouth length
+
+alpha.activity alpha of activity time, see details.
+
+gini.index.activity Gini index of activity
+
+stepping.to.standing.ratio Ratio of stepping to standing, the ratio of total stepping hours to standing hours
+
+table A table that combine all outputs
 }
 \description{
 Summarize Standing and Stepping activity measures
 }
+\details{
+alpha.activity is defined by \code{1+1/M}, where \code{M} is the average of \code{log(activity bout length /minimum activity bout length)}.
+}
 \examples{
- data(sample);Activity_summary(sample) 
+ data(sampledata);Activity_summary(sampledata)
 }
 

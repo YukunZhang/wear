@@ -4,21 +4,53 @@
 \alias{MVPA_summary}
 \title{Activity Summary--MVPA}
 \usage{
-MVPA_summary(final.dat, record.getup.time, record.sleep.time, ll, temp.activity)
+MVPA_summary(final.dat)
 }
 \arguments{
 \item{final.dat}{cleaned final data that is between record getup time and sleep time}
-
-\item{record.getup.time}{Log file of getup time}
-
-\item{record.sleep.time}{Log file of sleep time}
-
-\item{ll}{the id of getup time record}
 }
 \value{
-... ...
+Total.light.time Total light time: the total activity minutes minus the total MVPA hours
+
+Total.MVPA.time  Total MVPA hours: the summation of the total Long Bout MVPA and total Sporadic MVPA durations
+
+Total.MVPA.Long.Bout.time Total MVPA long bout time: the summation of the total Long Bout MVPA durations
+
+Total.MVPA.Sporadic.time Total MVPA sporadic time: the summation of the total Sporadic MVPA durations
+
+Total.Number.of.MVPA.Long.Bouts.and.Sporadic Total Number of MVPA (Long Bouts or Sporadic): count the number of MVPA from 15 second data
+
+Proportion.of.MVPA.Long.Bouts.and.Sporadic.greater.2 Proportion of MVPA (Long Bouts or Sporadic) greater than 2 minutes
+
+Proportion.of.MVPA.Long.Bouts.and.Sporadic.greater.5 Proportion of MVPA (Long Bouts or Sporadic) greater than 5 minutes
+
+Proportion.of.MVPA.Long.Bouts.and.Sporadic.greater.10 Proportion of MVPA (Long Bouts or Sporadic) greater than 10 minutes
+
+Total.Number.of.MVPA.Long.Bouts Total number of long bout MVPA: count the number of Long Bouts MVPA from 10 minute data
+
+Mean.MVPA.Long.Bout.Length Mean of long bout MVPA length
+
+Proportion.of.MVPA.Long.Bouts.greater.10 Proportion of Long Bout MVPA greater than 10 minutes
+
+Proportion.of.MVPA.Long.Bouts.greater.20 Proportion of Long Bout MVPA greater than 20 minutes
+
+Highest.MET.value.15s Highest METs values in 15 second
+
+Highest.MET.value.10min Highest METs values in 10 minutes
+
+Total.MET.hrs.Long.Bouts.and.Sporadic.mvpa Total METs hours from Long Bout MVPA and sporadic MVPA: the summation of METs hours from all MVPA records
+
+Total.MET.hrs.Long.Bouts Total METs hours from Long Bout MVPA: the summation of METs hours from Long Bout MVPA records
 }
 \description{
 Summarize activity measures using MVPA
+}
+\details{
+MVPA is defined into two types: Long Bout MVPA and Sporadic MVPA. Long Bout MVPA is defined as 10 consecutive minutes with METs>=3 (allowing 2 min below that threshold). Sporadic MVPA is defined as activities at any time with METS>=3 and they are not in Long Bout MVPA.
+
+Highest METs values in 15 second/10 minutes are calculated by picking up the maximum METs values from the combined data with 15 second intervals and the data with 10 minutes intervals, respectively.
+}
+\examples{
+data(sampledata);MVPA_summary(sampledata)
 }
 

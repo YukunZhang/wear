@@ -2,32 +2,41 @@
 % Please edit documentation in R/PA_summary.R
 \name{PA_summary}
 \alias{PA_summary}
-\title{Physical Activity Summary}
+\title{Physical Activity Summary-Summations}
 \usage{
 PA_summary(final.dat)
 }
 \arguments{
 \item{final.dat}{cleaned final data that is between record getup time and sleep time}
-
-\item{record.sleep.time}{Log file of sleep time}
-
-\item{record.getup.time}{Log file of getup time}
-
-\item{ll}{the id of getup time record}
 }
 \value{
 hours.worn.total Total worn hours
 
-hours.awake    Total awake hours
-
 sed.hour  Total sedantary hours
 
-... ...
+stand.hour Total stand hours
+
+step.hour Total step hours
+
+num.changes.from.sed.to.non.sed Numbers of changing from sedantary to non sadantary status
+
+step.count.total Total step count
+
+gini.index   Gini index of sedentary
+
+num.hour.over.3.METs Number of hours that Metabolic Equivalent of Task (MET) is over 3
+
+MET.hours  Total METs
+
+table A table that shows all above results
 }
 \description{
 Summarize activity measures
 }
+\details{
+All numbers are calculated in the given time period (day, hour, etc.). Total sedentary/standing/stepping hours are obtained from the summation of the duration times for sedentary/standing/stepping activities in the given time period. To calculate gini index, all of the recorded sedentary durations are listed and the \emph{gini} function in the R package \pkg{reldist} is used.
+}
 \examples{
- data(sample);PA_summary(sample) 
+ data(sampledata);PA_summary(sampledata)
 }
 

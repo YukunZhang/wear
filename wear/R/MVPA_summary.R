@@ -1,180 +1,198 @@
 #' Activity Summary--MVPA
 #'
 #' Summarize activity measures using MVPA
-#' @param final.dat cleaned final data that is between record getup time and sleep time
-#' @param record.sleep.time Log file of sleep time
-#' @param record.getup.time Log file of getup time
-#' @param ll the id of getup time record
-#' @return ... ...
+#' @param final_dat cleaned final data that is between record getup time and sleep time
+
+#' @return \code{Total_light_time} Total light time: the total activity minutes minus the total MVPA hours
+#' @return \code{Total_MVPA_time}  Total MVPA hours: the summation of the total Long Bout MVPA and total Sporadic MVPA durations
+#' @return \code{Total_MVPA_Long_Bout_time} Total MVPA long bout time: the summation of the total Long Bout MVPA durations
+#' @return \code{Total_mvpa_sporadic_time} Total MVPA sporadic time: the summation of the total Sporadic MVPA durations
+#' @return \code{Total_Number_of_MVPA_Long_Bouts_and_Sporadic} Total Number of MVPA (Long Bouts or Sporadic): count the number of MVPA from 15 second data
+#' @return \code{Proportion_of_MVPA_Long_Bouts_and_Sporadic_greater_2} Proportion of MVPA (Long Bouts or Sporadic) greater than 2 minutes
+#' @return \code{Proportion_of_MVPA_Long_Bouts_and_Sporadic_greater_5} Proportion of MVPA (Long Bouts or Sporadic) greater than 5 minutes
+#' @return \code{Proportion_of_MVPA_Long_Bouts_and_Sporadic_greater_10} Proportion of MVPA (Long Bouts or Sporadic) greater than 10 minutes
+#' @return \code{Total_Number_of_MVPA_Long_Bouts} Total number of long bout MVPA: count the number of Long Bouts MVPA from 10 minute data
+#' @return \code{Mean_MVPA_Long_Bout_Length} Mean of long bout MVPA length
+#' @return \code{Proportion_of_MVPA_Long_Bouts_greater_10} Proportion of Long Bout MVPA greater than 10 minutes
+#' @return \code{Proportion_of_MVPA_Long_Bouts_greater_20} Proportion of Long Bout MVPA greater than 20 minutes
+#' @return \code{Highest_MET_value_15s} Highest METs values in 15 second
+#' @return \code{Highest_MET_value_10min} Highest METs values in 10 minutes
+#' @return \code{Total_MET_hrs_Long_Bouts_and_Sporadic_mvpa} Total METs hours from Long Bout MVPA and sporadic MVPA: the summation of METs hours from all MVPA records
+#' @return \code{Total_MET_hrs_Long_Bouts} Total METs hours from Long Bout MVPA: the summation of METs hours from Long Bout MVPA records
+#' @details MVPA is defined into two types: Long Bout MVPA and Sporadic MVPA_ Long Bout MVPA is defined as 10 consecutive minutes with METs>=3 (allowing 2 min below that threshold). Sporadic MVPA is defined as activities at any time with METS>=3 and they are not in Long Bout MVPA.
+#' @details Highest METs values in 15 second/10 minutes are calculated by picking up the maximum METs values from the combined data with 15 second intervals and the data with 10 minutes intervals, respectively.
+#' @examples data(sampledata);MVPA_summary(sampledata)
 #' @export
 
-MVPA_summary=function(final.dat)
-{ 
-  dat=final.dat
-if(is.numeric(dat$Time)==F) ####if  is.numeric(dat$Time)==F, we need further modification of time in next step
+MVPA_summary=function(final_dat)
 {
-  ee<-as.character(dat$Time)
-  max.length<-max(nchar(ee))
-  ee[nchar(ee)!=max.length]<-"#1899-12-30 00:00:00#"
-  #### use character type, may not be good
-  ee.new<- (as.numeric( as.POSIXlt( substr(ee, 2, max.length-1 )  )    )+2209190400)/24/60/60
-  #### use interval type, this is the best
-  start.ee<-  min(which(dat[,2]>0))-1
-  ee.new.int.type <-c( ee.new[1:((start.ee)-1)],ee.new[start.ee]+(dat$DataCount[start.ee:nrow(dat)]/10/24/60/60)  )
-  #### if interval type has large difference with character type, use character type
-  int.dif.char<-which(abs(ee.new-ee.new.int.type)>0.1 )
-  ee.new.int.type[int.dif.char]<-ee.new[int.dif.char]
-  ####
-  dat<-cbind(ee.new.int.type,dat[,2:6])  
-}
-
-final.dat<-dat[,c(1,3,4,6)]
-colnames(final.dat)<-c("date.time","Interval","ActivityCode", "METs")
-
-temp.mat=final.dat
+  mvpa_sporadic=NULL
+  mvpa=NULL
+  is_interval_valid=NULL
 
 
-temp.mat.for.activity<- temp.mat
-temp.mat.for.activity$Activity[temp.mat.for.activity$Activity==1]<-2
-end.pos<-cumsum(rle(temp.mat.for.activity$Activity)$lengths)
-start.pos<-c(0,end.pos[1:(length(end.pos)-1)])+1
+dat=final_dat
+final_dat=clean_time(dat)
+temp_mat=final_dat
+
+
+
+temp_mat_for_activity<- temp_mat
+temp_mat_for_activity$Activity[temp_mat_for_activity$Activity==1]<-2
+end_pos<-cumsum(rle(temp_mat_for_activity$Activity)$lengths)
+start_pos<-c(0,end_pos[1:(length(end_pos)-1)])+1
 ############### for each runs, handle the data
-handle.runs<- sapply(1:length(end.pos),function(x,data.mat=temp.mat.for.activity)
+handle_runs<- sapply(1:length(end_pos),function(x,data_mat=temp_mat_for_activity)
 {
-  select.data<-data.mat[start.pos[x]:end.pos[x],]
-  combine.data<- c(min(select.data$date.time),sum(select.data$Interval),max(select.data$Activity),sum(select.data$METs) )
-  return(combine.data)
+  select_data<-data_mat[start_pos[x]:end_pos[x],]
+  combine_data<- c(min(select_data$date_time),sum(select_data$Interval),max(select_data$Activity),sum(select_data$METs),min(select_data$new_date) )
+  return(combine_data)
 }, simplify=F
 )
 ############### combine each run
-combined.temp.mat.for.activity<-data.frame(do.call(rbind,handle.runs))
-colnames(combined.temp.mat.for.activity)<-c("date.time", "Interval", "ActivityCode","METs")
+combined_temp_mat_for_activity<-data.frame(do.call(rbind,handle_runs))
+colnames(combined_temp_mat_for_activity)<-c("date_time", "Interval", "ActivityCode","METs","new_date")
+
+table1=c()
+###################################################
+for (i in unique(combined_temp_mat_for_activity$new_date)){
+  temp_mat_oneday=final_dat[final_dat$new_date==i,]
+  combined_temp_mat_for_activity_oneday=combined_temp_mat_for_activity[combined_temp_mat_for_activity$new_date==i,]
+  time_char<-as.POSIXlt(i*24*60*60, origin = ISOdatetime(1899,12,30,0,0,0))
+  month<-as.numeric(format(time_char,"%m"))
+  day<-as.numeric(format(time_char,"%d"))
+  year<-as.numeric(format(time_char,"%Y"))
+
+
 ###############
 ###############Calculation
 ###############
 ###
-temp.activity<-subset(combined.temp.mat.for.activity,combined.temp.mat.for.activity$ActivityCode==2)$Interval
+temp_activity<-subset(combined_temp_mat_for_activity_oneday,combined_temp_mat_for_activity_oneday$ActivityCode==2)$Interval
+mvpa_sporadic_interval<- 1/4          ### 1 means 1 minute; 0_5 means 30 seconds; 1/6 means 10 seconds
 
 
-mvpa.sporadic.interval<- 1/4          ### 1 means 1 minute; 0.5 means 30 seconds; 1/6 means 10 seconds
-
-
-mvpa.1min.mat<-temp.mat
-start.time<-mvpa.1min.mat$date.time[1]
-end.time<-  mvpa.1min.mat$date.time[nrow(mvpa.1min.mat)]
-num.1min.interval<- trunc( (end.time-start.time)*24*60*60/(60*mvpa.sporadic.interval) )   ###point 1
-#(end.time-start.time) != sum(temp.mat$Interval)/60/60/24 if there is take off
-interval.length<-mvpa.sporadic.interval*60/60/60/24
-interval.1min.start<-start.time+interval.length*(1:(num.1min.interval))
+mvpa_1min_mat<-temp_mat_oneday
+start_time<-mvpa_1min_mat$date_time[1]
+end_time<-  mvpa_1min_mat$date_time[nrow(mvpa_1min_mat)]
+num_1min_interval<- trunc( (end_time-start_time)*24*60*60/(60*mvpa_sporadic_interval) )   ###point 1
+#(end_time-start_time) != sum(temp_mat$Interval)/60/60/24 if there is take off
+interval_length<-mvpa_sporadic_interval*60/60/60/24
+interval_1min_start<-start_time+interval_length*(1:(num_1min_interval))
 ##################
-mvpa.record.start.time<-c(start.time, interval.1min.start)
-mvpa.record.end.time<-c(interval.1min.start,end.time)
-################## if there is take off, they won't be in combine.original.pseudo.mat
-# combine.original.pseudo.mat<-do.call(rbind,sapply(1: length(mvpa.record.start.time),function(ll){
-#   temp.mat<-subset(mvpa.1min.mat,mvpa.1min.mat[,1]+mvpa.1min.mat[,2]/24/60/60>mvpa.record.start.time[ll] & mvpa.1min.mat[,1]<mvpa.record.end.time[ll] )
-#   if(nrow(temp.mat)==0) return (NULL)
-#   if(temp.mat[nrow(temp.mat),1]+(temp.mat[nrow(temp.mat),2]/24/60/60)> mvpa.record.end.time[ll])  ###if this activity is the last one and it surpass the take off log time
-#   {
-#     temp.mat[nrow(temp.mat),4]<-temp.mat[nrow(temp.mat),4]*(mvpa.record.end.time[ll]-temp.mat[nrow(temp.mat),1])/(temp.mat[nrow(temp.mat),2]/24/60/60)
-#     temp.mat[nrow(temp.mat),2]<- (mvpa.record.end.time[ll]-temp.mat[nrow(temp.mat),1])*24*60*60
-#   }
-#   if(temp.mat[1,1]<mvpa.record.start.time[ll])   ###if this activity is the first one and itis earlier than the take on log time
-#   {
-#     temp.mat[1,4]<-temp.mat[1,4]* (temp.mat[1,2]-(mvpa.record.start.time[ll]- temp.mat[1,1])*24*60*60)/temp.mat[1,2]
-#     temp.mat[1,2]<-temp.mat[1,2]-(mvpa.record.start.time[ll]- temp.mat[1,1])*24*60*60
-#     temp.mat[1,1]<-mvpa.record.start.time[ll]
-#   }
-#   
-#   return(cbind(temp.mat,ll))
-# }, simplify = F)  )
+mvpa_record_start_time<-c(start_time, interval_1min_start)
+mvpa_record_end_time<-c(interval_1min_start,end_time)
+################## if there is take off, they won't be in combine_original_pseudo_mat
+combine_original_pseudo_mat<-do.call(rbind,sapply(1: length(mvpa_record_start_time),function(ll){
+  temp_mat<-subset(mvpa_1min_mat,mvpa_1min_mat[,1]+mvpa_1min_mat[,2]/24/60/60>mvpa_record_start_time[ll] & mvpa_1min_mat[,1]<mvpa_record_end_time[ll] )
+  if(nrow(temp_mat)==0) return (NULL)
+  if(temp_mat[nrow(temp_mat),1]+(temp_mat[nrow(temp_mat),2]/24/60/60)> mvpa_record_end_time[ll])  ###if this activity is the last one and it surpass the take off log time
+  {
+    temp_mat[nrow(temp_mat),4]<-temp_mat[nrow(temp_mat),4]*(mvpa_record_end_time[ll]-temp_mat[nrow(temp_mat),1])/(temp_mat[nrow(temp_mat),2]/24/60/60)
+    temp_mat[nrow(temp_mat),2]<- (mvpa_record_end_time[ll]-temp_mat[nrow(temp_mat),1])*24*60*60
+  }
+  if(temp_mat[1,1]<mvpa_record_start_time[ll])   ###if this activity is the first one and itis earlier than the take on log time
+  {
+    temp_mat[1,4]<-temp_mat[1,4]* (temp_mat[1,2]-(mvpa_record_start_time[ll]- temp_mat[1,1])*24*60*60)/temp_mat[1,2]
+    temp_mat[1,2]<-temp_mat[1,2]-(mvpa_record_start_time[ll]- temp_mat[1,1])*24*60*60
+    temp_mat[1,1]<-mvpa_record_start_time[ll]
+  }
 
-colnames(temp.mat)<-c("date.time","Interval","ActivityCode", "METs","one.minute.interval")
+  return(cbind(temp_mat,ll))
+}, simplify = F)  )
+
+colnames(combine_original_pseudo_mat)<-c("date_time","Interval","ActivityCode", "METs","new_date","one_minute_interval")
 ############################################################
 ############################################################ step2 summary 1 min intervals
 ############################################################
-one.minute.collection<-by(temp.mat,temp.mat$one.minute.interval,function(s)c(min(s$date.time),sum(s$METs)*(60/mvpa.sporadic.interval),unique(s$one.minute.interval),sum(s$Interval)  )) ###point 3
-one.minute.mat<-do.call(rbind,one.minute.collection)
-one.minute.mat<-subset(one.minute.mat,one.minute.mat[,3]!=0 & one.minute.mat[,4]>(60*mvpa.sporadic.interval*0.9) & one.minute.mat[,4]<(60*mvpa.sporadic.interval*1.1)     )  ### one.minute.mat[,4] is the true length, it may not be exactly 30 second, can have a few seconds bias
+one_minute_collection<-by(combine_original_pseudo_mat,combine_original_pseudo_mat$one_minute_interval,function(s)c(min(s$date_time),sum(s$METs)*(60/mvpa_sporadic_interval),unique(s$one_minute_interval),sum(s$Interval),min(s$new_date)  )) ###point 3
+one_minute_mat<-do.call(rbind,one_minute_collection)
+one_minute_mat<-subset(one_minute_mat,one_minute_mat[,3]!=0 & one_minute_mat[,4]>(60*mvpa_sporadic_interval*0.9) & one_minute_mat[,4]<(60*mvpa_sporadic_interval*1.1)     )  ### one_minute_mat[,4] is the true length, it may not be exactly 30 second, can have a few seconds bias
 #########################
-if(trunc(nrow(one.minute.mat)/(10/mvpa.sporadic.interval))==0)  {
-  ten.minute.vec<-rep(1,nrow(one.minute.mat))
-  if(nrow(one.minute.mat)==1) ten.minute.mat<- data.frame(t(c(one.minute.mat[1:length(ten.minute.vec),],ten.minute.vec)))
-  if(nrow(one.minute.mat)>1) ten.minute.mat<- data.frame(cbind(one.minute.mat[1:length(ten.minute.vec),],ten.minute.vec))
+if(trunc(nrow(one_minute_mat)/(10/mvpa_sporadic_interval))==0)  {
+  ten_minute_vec<-rep(1,nrow(one_minute_mat))
+  if(nrow(one_minute_mat)==1) ten_minute_mat<- data.frame(t(c(one_minute_mat[1:length(ten_minute_vec),],ten_minute_vec)))
+  if(nrow(one_minute_mat)>1) ten_minute_mat<- data.frame(cbind(one_minute_mat[1:length(ten_minute_vec),],ten_minute_vec))
 } else
 {
-  ten.minute.vec<-rep(1:trunc(nrow(one.minute.mat)/(10/mvpa.sporadic.interval)),each=  (10/mvpa.sporadic.interval)    )    ##### 30s to 10 min ###point 4
-  ten.minute.mat<- data.frame(cbind(one.minute.mat[1:length(ten.minute.vec),],ten.minute.vec))
+  ten_minute_vec<-rep(1:trunc(nrow(one_minute_mat)/(10/mvpa_sporadic_interval)),each=  (10/mvpa_sporadic_interval)    )    ##### 30s to 10 min ###point 4
+  ten_minute_mat<- data.frame(cbind(one_minute_mat[1:length(ten_minute_vec),],ten_minute_vec))
 }
 
-colnames(ten.minute.mat)<-c("date.time","mets","one.minute.interval","interval.length","ten.minute.interval")
+colnames(ten_minute_mat)<-c("date_time","mets","one_minute_interval","interval_length","new_date","ten_minute_interval")
 ############################################################
 ############################################################ step3 summary 10 min intervals
 ############################################################
-#### if in 10 minutes, 8 minutes have METs>3, it is MVPA bout; if less than 8minutes, they are counted as mvpa sporadic.
-is.mvpa<-function(s) if(s>=(8/mvpa.sporadic.interval)    ) return(1) else return(0)   ###point 5  ### this is for MVPA long bout
-ten.minute.collection<- data.frame(do.call(rbind,by(ten.minute.mat,ten.minute.mat$ten.minute.interval,function(s)c(min(s$date.time), is.mvpa(length(which(s$mets>=3))), mean(s$mets),length(which(s$mets>=3)), abs(max(s$date.time)-min(s$date.time)-sum(s$interval.length[1:(length(s$interval.length)-1)])/24/60/60 )   ))))
-colnames(ten.minute.collection)<-c("date.time","mvpa","mets","mvpa.sporadic","is.interval.valid")  #### is.interval.valid is to avoid the wear off during the day problem
-ten.minute.collection<-subset(ten.minute.collection,is.interval.valid<0.003) ###if the interval has 5 minutes take off, we do not take it
+#### if in 10 minutes, 8 minutes have METs>3, it is MVPA bout; if less than 8minutes, they are counted as mvpa sporadic_
+is_mvpa<-function(s) if(s>=(8/mvpa_sporadic_interval)    ) return(1) else return(0)   ###point 5  ### this is for MVPA long bout
+ten_minute_collection<- data.frame(do.call(rbind,by(ten_minute_mat,ten_minute_mat$ten_minute_interval,function(s)c(min(s$date_time), is_mvpa(length(which(s$mets>=3))), mean(s$mets),length(which(s$mets>=3)), abs(max(s$date_time)-min(s$date_time)-sum(s$interval_length[1:(length(s$interval_length)-1)])/24/60/60 )   ))))
+colnames(ten_minute_collection)<-c("date_time","mvpa","mets","mvpa_sporadic","is_interval_valid")  #### is_interval_valid is to avoid the wear off during the day problem
+ten_minute_collection<-subset(ten_minute_collection,is_interval_valid<0.003) ###if the interval has 5 minutes take off, we do not take it
 
 ############################################################
 ############################################################ step4 MVPA information
 ############################################################
 #### total time
-Total.MVPA.Long.Bout.time<-nrow(subset(ten.minute.collection,mvpa==1))/6  ###by hours
-Total.MVPA.Sporadic.time<-sum(subset(ten.minute.collection,mvpa.sporadic>0 & mvpa!=1)$mvpa.sporadic )/(60/mvpa.sporadic.interval) ###by hours ###point 6
-Total.MVPA.time<- Total.MVPA.Long.Bout.time+Total.MVPA.Sporadic.time
-Total.light.time<- sum(temp.activity) /60/60-Total.MVPA.time
-#### Long Bouts+Sporadic.time runs
-Long.Bouts.and.Sporadic.run<- rle(ifelse( one.minute.mat[,2]>=3,1,0))
-Total.Number.of.MVPA.Long.Bouts.and.Sporadic<-  length(which(Long.Bouts.and.Sporadic.run$values==1))
+Total_MVPA_Long_Bout_time<-nrow(subset(ten_minute_collection,mvpa==1))/6  ###by hours
+Total_mvpa_sporadic_time<-sum(subset(ten_minute_collection,mvpa_sporadic>0 & mvpa!=1)$mvpa_sporadic )/(60/mvpa_sporadic_interval) ###by hours ###point 6
+Total_MVPA_time<- Total_MVPA_Long_Bout_time+Total_mvpa_sporadic_time
+Total_light_time<- sum(temp_activity) /60/60-Total_MVPA_time
+#### Long Bouts+Sporadic_time runs
+Long_Bouts_and_Sporadic_run<- rle(ifelse( one_minute_mat[,2]>=3,1,0))
+Total_Number_of_MVPA_Long_Bouts_and_Sporadic<-  length(which(Long_Bouts_and_Sporadic_run$values==1))
 
-run.for.Long.Bouts.and.Sporadic.mvpa<- Long.Bouts.and.Sporadic.run$lengths[which(Long.Bouts.and.Sporadic.run$values==1)]/ (60/mvpa.sporadic.interval) ###by hours ###point 7
+run_for_Long_Bouts_and_Sporadic_mvpa<- Long_Bouts_and_Sporadic_run$lengths[which(Long_Bouts_and_Sporadic_run$values==1)]/ (60/mvpa_sporadic_interval) ###by hours ###point 7
 
-if(Total.MVPA.time==0)  Proportion.of.MVPA.Long.Bouts.and.Sporadic.greater.2<-0 else  Proportion.of.MVPA.Long.Bouts.and.Sporadic.greater.2<-100*length(run.for.Long.Bouts.and.Sporadic.mvpa[run.for.Long.Bouts.and.Sporadic.mvpa>1/30])/Total.Number.of.MVPA.Long.Bouts.and.Sporadic
-if(Total.MVPA.time==0)  Proportion.of.MVPA.Long.Bouts.and.Sporadic.greater.5<-0 else  Proportion.of.MVPA.Long.Bouts.and.Sporadic.greater.5<-100*length(run.for.Long.Bouts.and.Sporadic.mvpa[run.for.Long.Bouts.and.Sporadic.mvpa>1/12])/Total.Number.of.MVPA.Long.Bouts.and.Sporadic
-if(Total.MVPA.time==0)  Proportion.of.MVPA.Long.Bouts.and.Sporadic.greater.10<-0 else Proportion.of.MVPA.Long.Bouts.and.Sporadic.greater.10<-100*length(run.for.Long.Bouts.and.Sporadic.mvpa[run.for.Long.Bouts.and.Sporadic.mvpa>1/6])/Total.Number.of.MVPA.Long.Bouts.and.Sporadic
+if(Total_MVPA_time==0)  Proportion_of_MVPA_Long_Bouts_and_Sporadic_greater_2<-0 else  Proportion_of_MVPA_Long_Bouts_and_Sporadic_greater_2<-100*length(run_for_Long_Bouts_and_Sporadic_mvpa[run_for_Long_Bouts_and_Sporadic_mvpa>1/30])/Total_Number_of_MVPA_Long_Bouts_and_Sporadic
+if(Total_MVPA_time==0)  Proportion_of_MVPA_Long_Bouts_and_Sporadic_greater_5<-0 else  Proportion_of_MVPA_Long_Bouts_and_Sporadic_greater_5<-100*length(run_for_Long_Bouts_and_Sporadic_mvpa[run_for_Long_Bouts_and_Sporadic_mvpa>1/12])/Total_Number_of_MVPA_Long_Bouts_and_Sporadic
+if(Total_MVPA_time==0)  Proportion_of_MVPA_Long_Bouts_and_Sporadic_greater_10<-0 else Proportion_of_MVPA_Long_Bouts_and_Sporadic_greater_10<-100*length(run_for_Long_Bouts_and_Sporadic_mvpa[run_for_Long_Bouts_and_Sporadic_mvpa>1/6])/Total_Number_of_MVPA_Long_Bouts_and_Sporadic
 
 
 #### Long Bouts Only runs
-run.for.mvpa<-rle(ten.minute.collection$mvpa)
+run_for_mvpa<-rle(ten_minute_collection$mvpa)
 
-Total.Number.of.MVPA.Long.Bouts<-  length(which(run.for.mvpa$values==1))
-temp.mvpa.long.bout<-run.for.mvpa$lengths[which(run.for.mvpa$values==1)]/6 ###by hours
-if(Total.Number.of.MVPA.Long.Bouts==0) Mean.MVPA.Long.Bout.Length<-0 else Mean.MVPA.Long.Bout.Length<-mean(temp.mvpa.long.bout)
+Total_Number_of_MVPA_Long_Bouts<-  length(which(run_for_mvpa$values==1))
+temp_mvpa_long_bout<-run_for_mvpa$lengths[which(run_for_mvpa$values==1)]/6 ###by hours
+if(Total_Number_of_MVPA_Long_Bouts==0) Mean_MVPA_Long_Bout_Length<-0 else Mean_MVPA_Long_Bout_Length<-mean(temp_mvpa_long_bout)
 ####
-if(Total.Number.of.MVPA.Long.Bouts==0)  Proportion.of.MVPA.Long.Bouts.greater.10<-0 else  Proportion.of.MVPA.Long.Bouts.greater.10<-100*length(temp.mvpa.long.bout[temp.mvpa.long.bout>1/6])/Total.Number.of.MVPA.Long.Bouts
-if(Total.Number.of.MVPA.Long.Bouts==0)  Proportion.of.MVPA.Long.Bouts.greater.20<-0 else  Proportion.of.MVPA.Long.Bouts.greater.20<-100*length(temp.mvpa.long.bout[temp.mvpa.long.bout>2/6])/Total.Number.of.MVPA.Long.Bouts
+if(Total_Number_of_MVPA_Long_Bouts==0)  Proportion_of_MVPA_Long_Bouts_greater_10<-0 else  Proportion_of_MVPA_Long_Bouts_greater_10<-100*length(temp_mvpa_long_bout[temp_mvpa_long_bout>1/6])/Total_Number_of_MVPA_Long_Bouts
+if(Total_Number_of_MVPA_Long_Bouts==0)  Proportion_of_MVPA_Long_Bouts_greater_20<-0 else  Proportion_of_MVPA_Long_Bouts_greater_20<-100*length(temp_mvpa_long_bout[temp_mvpa_long_bout>2/6])/Total_Number_of_MVPA_Long_Bouts
 #### percentile is not meaningful, always too short
-####if(Total.Number.of.MVPA.Long.Bouts==0)
+####if(Total_Number_of_MVPA_Long_Bouts==0)
 #### {
-####percentile.MVPA.Long.Bouts.time.5<- 0
-####percentile.MVPA.Long.Bouts.time.25<- 0
-####percentile.MVPA.Long.Bouts.time.50<- 0
-####percentile.MVPA.Long.Bouts.time.75<- 0
-####percentile.MVPA.Long.Bouts.time.95<- 0
+####percentile_MVPA_Long_Bouts_time_5<- 0
+####percentile_MVPA_Long_Bouts_time_25<- 0
+####percentile_MVPA_Long_Bouts_time_50<- 0
+####percentile_MVPA_Long_Bouts_time_75<- 0
+####percentile_MVPA_Long_Bouts_time_95<- 0
 #### } else {
-####  Percentiles.of.MVPA.Long.Bout.Length.quantile<- quantile(temp.mvpa.long.bout, probs = c(0.05,0.25,0.5,0.75,0.95))
-####percentile.MVPA.Long.Bouts.time.5<- Percentiles.of.MVPA.Long.Bout.Length.quantile[1]
-####percentile.MVPA.Long.Bouts.time.25<- Percentiles.of.MVPA.Long.Bout.Length.quantile[2]
-####percentile.MVPA.Long.Bouts.time.50<- Percentiles.of.MVPA.Long.Bout.Length.quantile[3]
-####percentile.MVPA.Long.Bouts.time.75<- Percentiles.of.MVPA.Long.Bout.Length.quantile[4]
-####percentile.MVPA.Long.Bouts.time.95<- Percentiles.of.MVPA.Long.Bout.Length.quantile[5]
+####  Percentiles_of_MVPA_Long_Bout_Length_quantile<- quantile(temp_mvpa_long_bout, probs = c(0_05,0_25,0_5,0_75,0_95))
+####percentile_MVPA_Long_Bouts_time_5<- Percentiles_of_MVPA_Long_Bout_Length_quantile[1]
+####percentile_MVPA_Long_Bouts_time_25<- Percentiles_of_MVPA_Long_Bout_Length_quantile[2]
+####percentile_MVPA_Long_Bouts_time_50<- Percentiles_of_MVPA_Long_Bout_Length_quantile[3]
+####percentile_MVPA_Long_Bouts_time_75<- Percentiles_of_MVPA_Long_Bout_Length_quantile[4]
+####percentile_MVPA_Long_Bouts_time_95<- Percentiles_of_MVPA_Long_Bout_Length_quantile[5]
 ####        }
 
 
 ####################################################
-#################################################### MET.value
+#################################################### MET_value
 ####################################################
-Highest.MET.value.15s<- max(one.minute.mat[,2])
-Highest.MET.value.10min<- max(ten.minute.collection[,3])
-################################################ MET.value from MVPA
-Total.MET.hrs.Long.Bouts.and.Sporadic.mvpa<- sum((one.minute.mat[,2]/60/60*one.minute.mat[,4])[one.minute.mat[,2]>=3])
-Total.MET.hrs.Long.Bouts<- sum((subset(ten.minute.collection,mvpa==1))$mets/60*10)
+Highest_MET_value_15s<- max(one_minute_mat[,2])
+Highest_MET_value_10min<- max(ten_minute_collection[,3])
+################################################ MET_value from MVPA
+Total_MET_hrs_Long_Bouts_and_Sporadic_mvpa<- sum((one_minute_mat[,2]/60/60*one_minute_mat[,4])[one_minute_mat[,2]>=3])
+Total_MET_hrs_Long_Bouts<- sum((subset(ten_minute_collection,mvpa==1))$mets/60*10)
+table<- cbind(year,month,day,Total_light_time,Total_MVPA_time, Total_MVPA_Long_Bout_time,Total_mvpa_sporadic_time,Total_Number_of_MVPA_Long_Bouts_and_Sporadic,Proportion_of_MVPA_Long_Bouts_and_Sporadic_greater_2,Proportion_of_MVPA_Long_Bouts_and_Sporadic_greater_5,Proportion_of_MVPA_Long_Bouts_and_Sporadic_greater_10, Total_Number_of_MVPA_Long_Bouts,Mean_MVPA_Long_Bout_Length, Proportion_of_MVPA_Long_Bouts_greater_10,Proportion_of_MVPA_Long_Bouts_greater_20, Highest_MET_value_15s,Highest_MET_value_10min, Total_MET_hrs_Long_Bouts_and_Sporadic_mvpa,Total_MET_hrs_Long_Bouts)
 
-
-table5<- cbind(Total.light.time,Total.MVPA.time, Total.MVPA.Long.Bout.time,Total.MVPA.Sporadic.time,Total.Number.of.MVPA.Long.Bouts.and.Sporadic,Proportion.of.MVPA.Long.Bouts.and.Sporadic.greater.2,Proportion.of.MVPA.Long.Bouts.and.Sporadic.greater.5,Proportion.of.MVPA.Long.Bouts.and.Sporadic.greater.10, Total.Number.of.MVPA.Long.Bouts,Mean.MVPA.Long.Bout.Length, Proportion.of.MVPA.Long.Bouts.greater.10,Proportion.of.MVPA.Long.Bouts.greater.20, Highest.MET.value.15s,Highest.MET.value.10min, Total.MET.hrs.Long.Bouts.and.Sporadic.mvpa,Total.MET.hrs.Long.Bouts)
-colnames(table5)<- c("Total.light.time","Total.MVPA.time","Total.MVPA.Long.Bout.time","Total.MVPA.Sporadic.time","Total.Number.of.MVPA.Long.Bouts.and.Sporadic","Proportion.of.MVPA.Long.Bouts.and.Sporadic.greater.2","Proportion.of.MVPA.Long.Bouts.and.Sporadic.greater.5","Proportion.of.MVPA.Long.Bouts.and.Sporadic.greater.10","Total.Number.of.MVPA.Long.Bouts","Mean.MVPA.Long.Bout.Length","Proportion.of.MVPA.Long.Bouts.greater.10","Proportion.of.MVPA.Long.Bouts.greater.20","Highest.MET.value.15s","Highest.MET.value.10min","Total.MET.hrs.Long.Bouts.and.Sporadic.mvpa","Total.MET.hrs.Long.Bouts")
-out=list( Total.light.time=Total.light.time,Total.MVPA.time=Total.MVPA.time, Total.MVPA.Long.Bout.time=Total.MVPA.Long.Bout.time,Total.MVPA.Sporadic.time=Total.MVPA.Sporadic.time,Total.Number.of.MVPA.Long.Bouts.and.Sporadic=Total.Number.of.MVPA.Long.Bouts.and.Sporadic,Proportion.of.MVPA.Long.Bouts.and.Sporadic.greater.2=Proportion.of.MVPA.Long.Bouts.and.Sporadic.greater.2,Proportion.of.MVPA.Long.Bouts.and.Sporadic.greater.5=Proportion.of.MVPA.Long.Bouts.and.Sporadic.greater.5,Proportion.of.MVPA.Long.Bouts.and.Sporadic.greater.10=Proportion.of.MVPA.Long.Bouts.and.Sporadic.greater.10, Total.Number.of.MVPA.Long.Bouts=Total.Number.of.MVPA.Long.Bouts,Mean.MVPA.Long.Bout.Length=Mean.MVPA.Long.Bout.Length, Proportion.of.MVPA.Long.Bouts.greater.10=Proportion.of.MVPA.Long.Bouts.greater.10,Proportion.of.MVPA.Long.Bouts.greater.20=Proportion.of.MVPA.Long.Bouts.greater.20, Highest.MET.value.15s= Highest.MET.value.15s,Highest.MET.value.10min=Highest.MET.value.10min, Total.MET.hrs.Long.Bouts.and.Sporadic.mvpa= Total.MET.hrs.Long.Bouts.and.Sporadic.mvpa,Total.MET.hrs.Long.Bouts=Total.MET.hrs.Long.Bouts,table5=table5,table5.label=table5.label)
-return(out)
+row.names(table)=NULL
+table1=rbind(table1,table)
+#print(table1)
 
 }
+colnames(table1)<- c("year","month","day","Total_light_time","Total_MVPA_time","Total_MVPA_Long_Bout_time","Total_mvpa_sporadic_time","Total_Number_of_MVPA_Long_Bouts_and_Sporadic","Proportion_of_MVPA_Long_Bouts_and_Sporadic_greater_2","Proportion_of_MVPA_Long_Bouts_and_Sporadic_greater_5","Proportion_of_MVPA_Long_Bouts_and_Sporadic_greater_10","Total_Number_of_MVPA_Long_Bouts","Mean_MVPA_Long_Bout_Length","Proportion_of_MVPA_Long_Bouts_greater_10","Proportion_of_MVPA_Long_Bouts_greater_20","Highest_MET_value_15s","Highest_MET_value_10min","Total_MET_hrs_Long_Bouts_and_Sporadic_mvpa","Total_MET_hrs_Long_Bouts")
+
+#out=list( total_number_of_activity_bouts=total_number_of_activity_bouts,mean_activity_bout_length=mean_activity_bout_length,prop_of_activity_time_greater_5min=prop_of_activity_time_greater_5min,prop_of_activity_time_greater_10min=prop_of_activity_time_greater_10min,prop_of_activity_time_greater_30min=prop_of_activity_time_greater_30min,total_activity_time_greater_5min=total_activity_time_greater_5min,total_activity_time_greater_10min=total_activity_time_greater_10min,total_activity_time_greater_30min=total_activity_time_greater_30min,percentile_activity_time_5=percentile_activity_time_5,percentile_activity_time_25=percentile_activity_time_25,percentile_activity_time_50=percentile_activity_time_50,percentile_activity_time_75=percentile_activity_time_75,percentile_activity_time_95=percentile_activity_time_95,alpha_activity=alpha_activity,stepping_to_standing_ratio=stepping_to_standing_ratio,table=table)
+return(table1)
+}
+

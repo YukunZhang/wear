@@ -1,0 +1,18 @@
+{
+    "contents" : "import.APST.csvfile.groups<- read.csv(\"C:\\\\Users\\\\Yukun Zhang\\\\Desktop\\\\Yukun\\\\STARTgroups.csv\")\n################################################ Set Folder     #####################################\nfolder.to.export.APST.csvfile.and.RDatafile<- \"C:\\\\Users\\\\Yukun Zhang\\\\Desktop\\\\Yukun\\\\Sarah'sProject_Haocheng\"\nfolder.to.import.APST.csvfile.week0<- \"C:\\\\Users\\\\Yukun Zhang\\\\Desktop\\\\Yukun\\\\Sarah'sProject_Haocheng\\\\event files\\\\baseline\"\nfolder.to.import.APST.csvfile.week3<- \"C:\\\\Users\\\\Yukun Zhang\\\\Desktop\\\\Yukun\\\\Sarah'sProject_Haocheng\\\\event files\\\\three\"\nfolder.to.import.APST.csvfile.week6<- \"C:\\\\Users\\\\Yukun Zhang\\\\Desktop\\\\Yukun\\\\Sarah'sProject_Haocheng\\\\event files\\\\six\"\nfolder.to.import.APST.csvfile.week9<- \"C:\\\\Users\\\\Yukun Zhang\\\\Desktop\\\\Yukun\\\\Sarah'sProject_Haocheng\\\\event files\\\\nine\"\nfolder.to.import.APST.csvfile.week12<- \"C:\\\\Users\\\\Yukun Zhang\\\\Desktop\\\\Yukun\\\\Sarah'sProject_Haocheng\\\\event files\\\\twelve\"\n#############################################\n\nfor (www in c(0,3,6,9,12))\n{\n  #### www=0\n  Summary.Statistics.Table<-c()\n  if(www==0) {week=0; setwd(folder.to.import.APST.csvfile.week0);takeoff.time<-read.csv(\"baseline.on.off.final.csv\");bed.time<-read.csv(\"baseline.bed.final.csv\")}\n  if(www==3){week=3; setwd(folder.to.import.APST.csvfile.week3);takeoff.time<-read.csv(\"week3.on.off.final.csv\");bed.time<-read.csv(\"week3.bed.final.csv\") }\n  if(www==6){week=6; setwd(folder.to.import.APST.csvfile.week6);takeoff.time<-read.csv(\"week6.on.off.final.csv\");bed.time<-read.csv(\"week6.bed.final.csv\") }\n  if(www==9){week=9; setwd(folder.to.import.APST.csvfile.week9);takeoff.time<-read.csv(\"week9.on.off.final.csv\");bed.time<-read.csv(\"week9.bed.final.csv\") }\n  if(www==12){week=12;setwd(folder.to.import.APST.csvfile.week12);takeoff.time<-read.csv(\"week12.on.off.final.csv\");bed.time<-read.csv(\"week12.bed.final.csv\") }\n  ",
+    "created" : 1454098039267.000,
+    "dirty" : true,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "797911850",
+    "id" : "BCB4E35",
+    "lastKnownWriteTime" : 7011605692497750387,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "tempName" : "Untitled2"
+    },
+    "relative_order" : 7,
+    "source_on_save" : false,
+    "type" : "r_source"
+}

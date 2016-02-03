@@ -6,7 +6,7 @@
 \title{Simulated sample accelerometer data}
 \format{A data frame with 128 rows and 6 variables}
 \usage{
-data(sampledata)
+data(sampledata); data(sample_event);data(sample_bed_time);data(sample_takeon_time)
 }
 \description{
 A dataset containing the prices and other attributes of almost 54,000

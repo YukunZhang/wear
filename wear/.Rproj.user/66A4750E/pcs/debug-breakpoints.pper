@@ -1,6 +1,21 @@
 {
     "debugBreakpointsState" : {
         "breakpoints" : [
+            {
+                "editor_line_number" : 42,
+                "editor_state" : 1,
+                "function_name" : "Standard_summary",
+                "function_steps" : "9",
+                "id" : 2,
+                "is_package_breakpoint" : true,
+                "is_pending_debug_completion" : false,
+                "line_number" : 42,
+                "needs_updated_steps" : false,
+                "package_name" : "PAactivPAL",
+                "path" : "C:/Users/Yukun Zhang/Desktop/Yukun/wear/R/Standard_summary.R",
+                "state" : 1,
+                "type" : 0
+            }
         ]
     }
 }

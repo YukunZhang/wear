@@ -1,0 +1,17 @@
+{
+    "contents" : "#' Simulated sample accelerometer data\n#'\n#' A dataset containing the prices and other attributes of almost 54,000\n#'  diamonds. The variables are as follows:\n#'\n#' \\itemize{\n#'   \\item Time Time of the recored physical activity from simmulated ActivPAL data\n#'   \\item Data Count Data Count (samples)\n#'   \\item Time interval (in second)\n#'   \\item Activity Code 0-sedantary, 1-standing, 2-stepping\n#'   \\item Cumulative Step Count\n#'   \\item Activity Score (MET.h)\n#' }\n#'\n#' @docType data\n#' @keywords datasets\n#' @name sampledata\n#' @usage data(sampledata); data(sample_event);data(sample_bed_time);data(sample_takeon_time)\n#' @format A data frame with 128 rows and 6 variables\nNULL\n",
+    "created" : 1454475518090.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1897702431",
+    "id" : "EB88ECA3",
+    "lastKnownWriteTime" : 1454475634,
+    "path" : "C:/Users/Yukun Zhang/Desktop/Yukun/wear/R/sampledata.r",
+    "project_path" : "R/sampledata.r",
+    "properties" : {
+    },
+    "relative_order" : 15,
+    "source_on_save" : false,
+    "type" : "r_source"
+}

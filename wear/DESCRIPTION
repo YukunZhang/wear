@@ -6,8 +6,6 @@ Date: 2015-11-27
 Author:  Li, Haocheng (U of C);  Zhang, Yukun (U of C); Keadle, Sarah (NIH/NCI); Sampson, Joshua (NIH/NCI); Matthews, Charles (NIH/NCI); Raymond Carroll (TAMU)
 Maintainer: Zhang, Yukun <yukzhang@ucalgary.ca>
 Description: Summarize  physical activity (Mets, Proportion, Total, etc.) in the given time period from accelerometer data
-Imports:
-    reldist
 License: GPL-2
 LazyData: TRUE
 RoxygenNote: 5.0.1

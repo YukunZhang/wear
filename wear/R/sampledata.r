@@ -15,6 +15,6 @@
 #' @docType data
 #' @keywords datasets
 #' @name sampledata
-#' @usage data(sampledata)
+#' @usage data(sampledata); data(sample_event);data(sample_bed_time);data(sample_takeon_time)
 #' @format A data frame with 128 rows and 6 variables
 NULL

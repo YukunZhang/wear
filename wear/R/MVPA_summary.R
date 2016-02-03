@@ -21,18 +21,17 @@
 #' @return \code{Total_MET_hrs_Long_Bouts} Total METs hours from Long Bout MVPA: the summation of METs hours from Long Bout MVPA records
 #' @details MVPA is defined into two types: Long Bout MVPA and Sporadic MVPA_ Long Bout MVPA is defined as 10 consecutive minutes with METs>=3 (allowing 2 min below that threshold). Sporadic MVPA is defined as activities at any time with METS>=3 and they are not in Long Bout MVPA.
 #' @details Highest METs values in 15 second/10 minutes are calculated by picking up the maximum METs values from the combined data with 15 second intervals and the data with 10 minutes intervals, respectively.
-#' @examples data(sampledata);MVPA_summary(sampledata)
+#' @examples  data(sample_event);data(sample_bed_time);data(sample_takeon_time);MVPA_summary(sample_event,sample_takeon_log,sample_bed_time)
 #' @export
 
-MVPA_summary=function(final_dat)
+MVPA_summary=function(final_dat,takeoff.time,bed.time)
 {
   mvpa_sporadic=NULL
   mvpa=NULL
   is_interval_valid=NULL
 
 
-dat=final_dat
-final_dat=clean_time(dat)
+final_dat=clean_time(final_dat,takeoff.time)
 temp_mat=final_dat
 
 
@@ -52,12 +51,29 @@ handle_runs<- sapply(1:length(end_pos),function(x,data_mat=temp_mat_for_activity
 ############### combine each run
 combined_temp_mat_for_activity<-data.frame(do.call(rbind,handle_runs))
 colnames(combined_temp_mat_for_activity)<-c("date_time", "Interval", "ActivityCode","METs","new_date")
+record.getup<-bed.time
+###
+record.getup.time<-c()
+record.sleep.time<-c()
+for (kk in 1:nrow(record.getup))
+{
+  temp.getup.time<-as.numeric(as.POSIXlt(strptime(as.character(paste(as.character(record.getup[kk,3] ),as.character(record.getup[kk,4]))),"%m/%d/%Y %H:%M:%S"))+2209136400)/24/60/60
+  record.getup.time<-c(record.getup.time,temp.getup.time)
+  temp.sleep.time<-as.numeric(as.POSIXlt(strptime(as.character(paste(as.character(record.getup[kk,5] ),as.character(record.getup[kk,6]))),"%m/%d/%Y %H:%M:%S"))+2209136400)/24/60/60
+  record.sleep.time<-c(record.sleep.time,temp.sleep.time)
+}
 
 table1=c()
+ll=0
 ###################################################
 for (i in unique(combined_temp_mat_for_activity$new_date)){
+  ll=ll+1
   temp_mat_oneday=final_dat[final_dat$new_date==i,]
+  temp_mat_oneday<-temp_mat_oneday[temp_mat_oneday[,1]>record.getup.time[ll] &temp_mat_oneday[,1]<record.sleep.time[ll], ]
+
   combined_temp_mat_for_activity_oneday=combined_temp_mat_for_activity[combined_temp_mat_for_activity$new_date==i,]
+  combined_temp_mat_for_activity_oneday<-combined_temp_mat_for_activity_oneday[combined_temp_mat_for_activity_oneday[,1]>record.getup.time[ll] &combined_temp_mat_for_activity_oneday[,1]<record.sleep.time[ll], ]
+
   time_char<-as.POSIXlt(i*24*60*60, origin = ISOdatetime(1899,12,30,0,0,0))
   month<-as.numeric(format(time_char,"%m"))
   day<-as.numeric(format(time_char,"%d"))

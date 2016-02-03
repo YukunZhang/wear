@@ -1,0 +1,25 @@
+{
+    "contents" : "",
+    "created" : 1453848604037.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "298E5FEA",
+    "lastKnownWriteTime" : 27303497949970508,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "5runf4763t",
+        "caption" : "record.getup",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=record.getup&cache_key=5runf4763t",
+        "displayedObservations" : 8,
+        "environment" : "",
+        "object" : "record.getup",
+        "totalObservations" : 8,
+        "variables" : 6
+    },
+    "relative_order" : 8,
+    "source_on_save" : false,
+    "type" : "r_dataframe"
+}
